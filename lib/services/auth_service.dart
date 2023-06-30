@@ -10,8 +10,6 @@ class AuthService {
     String name,
     String email,
     String password,
-    String coverImageUrl,
-    String profileImageUrl,
     String phoneNumber,
   ) async {
     try {
@@ -27,8 +25,8 @@ class AuthService {
         phoneNumber: phoneNumber,
         address: "",
         bio: "",
-        profilePictureUrl: profileImageUrl,
-        coverImageUrl: coverImageUrl,
+        profilePictureUrl: "",
+        coverImageUrl: "",
         password: password,
         approved: false,
       );
@@ -84,7 +82,7 @@ class AuthService {
     }
   }
 
-  Future<String?> loginUser(String email, String password) async {
+  Future<User?> loginUser(String email, String password) async {
     try {
       final querySnapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -100,7 +98,7 @@ class AuthService {
           email: email,
           password: password,
         );
-        return userCredential.user?.uid;
+        return userCredential.user?.uid == user.id ? userCredential.user : null;
       } else {
         return null; // User not found
       }

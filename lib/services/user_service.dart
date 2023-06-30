@@ -86,4 +86,28 @@ class UserService {
         .collection('comments')
         .add(commentData);
   }
+
+  // get current user
+  UserModel getCurrentUser() {
+    UserModel user = UserModel(
+      id: _firebaseAuth.currentUser!.uid,
+      email: _firebaseAuth.currentUser!.email!,
+      name: "",
+      profilePictureUrl: "",
+      address: '',
+      password: '',
+      phoneNumber: '',
+      bio: '',
+      coverImageUrl: '',
+      approved: false,
+    );
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(_firebaseAuth.currentUser!.uid)
+        .get()
+        .then((value) {
+      user = UserModel.fromMap(value.data() as Map<String, dynamic>);
+    });
+    return user;
+  }
 }

@@ -1,8 +1,10 @@
 import 'package:admin_app/admin.dart';
 import 'package:admin_app/firebase_options.dart';
-import 'package:flutter/material.dart';
+import 'package:admin_app/login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 //intialize the firebase
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +26,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: AdminPage(),
+      home: FirebaseAuth.instance.currentUser != null
+          ? AdminPage()
+          : LoginScreen(),
     );
   }
 }

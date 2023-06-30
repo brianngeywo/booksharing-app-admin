@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Color textColor = Colors.amberAccent;
+Color? textColor = Colors.cyan[900];
 Divider my_divider = Divider(
   color: textColor,
   height: 2,

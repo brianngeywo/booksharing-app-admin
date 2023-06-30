@@ -1,10 +1,6 @@
-import 'dart:io';
-
 import 'package:admin_app/constants.dart';
 import 'package:admin_app/services/auth_service.dart';
-import 'package:admin_app/services/firebase_storage_service.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 class EditUserScreen extends StatefulWidget {
   @override
@@ -17,49 +13,16 @@ class _EditUserScreenState extends State<EditUserScreen> {
   String _email = "";
   String _password = "";
   String _phoneNumber = "";
-  File? _coverImage;
-  File? _profileImage;
-
-  Future<void> _pickCoverImage() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.getImage(source: ImageSource.gallery);
-
-    setState(() {
-      if (pickedImage != null) {
-        _coverImage = File(pickedImage.path);
-      }
-    });
-  }
-
-  Future<void> _pickProfileImage() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.getImage(source: ImageSource.gallery);
-
-    setState(() {
-      if (pickedImage != null) {
-        _profileImage = File(pickedImage.path);
-      }
-    });
-  }
 
   Future<void> _signUp() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
       try {
-        final coverImageUrl = await FirebaseStorageService()
-            .uploadImageToStorage(_coverImage!,
-                'cover_images/${DateTime.now().millisecondsSinceEpoch}.jpg');
-        final profileImageUrl = await FirebaseStorageService()
-            .uploadImageToStorage(_profileImage!,
-                'profile_images/${DateTime.now().millisecondsSinceEpoch}.jpg');
-
         AuthService().signUpUser(
           _name,
           _email,
           _password,
-          coverImageUrl,
-          profileImageUrl,
           _phoneNumber,
         );
       } catch (e) {
@@ -171,57 +134,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
                   },
                 ),
                 const SizedBox(height: 16.0),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    onPressed: _pickCoverImage,
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors
-                          .white, // Set the button background color to transparent
-                    ),
-                    child: Text(
-                      'Pick Cover Image',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: textColor, // Set the text color to blue
-                      ),
-                    ),
-                  ),
-                ),
-                if (_coverImage != null) ...[
-                  const SizedBox(height: 16.0),
-                  Image.file(
-                    _coverImage!,
-                    height: 150,
-                    fit: BoxFit.cover,
-                  ),
-                ],
-                const SizedBox(height: 16.0),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    onPressed: _pickProfileImage,
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors
-                          .white, // Set the button background color to transparent
-                    ),
-                    child: Text(
-                      'Pick Profile Image',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: textColor, // Set the text color to blue
-                      ),
-                    ),
-                  ),
-                ),
-                if (_profileImage != null) ...[
-                  const SizedBox(height: 16.0),
-                  Image.file(
-                    _profileImage!,
-                    height: 150,
-                    fit: BoxFit.cover,
-                  ),
-                ],
                 const SizedBox(height: 32.0),
                 Padding(
                   padding: const EdgeInsets.all(8.0),

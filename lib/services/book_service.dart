@@ -41,7 +41,7 @@ class BookService {
   }
 
   Future<void> addBook(BookModel book) async {
-    await _booksRef.add(book.toMap());
+    await _booksRef.doc(book.id).set(book.toMap());
   }
 
   Future<void> updateBook(BookModel book) async {
