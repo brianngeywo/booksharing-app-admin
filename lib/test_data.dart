@@ -1,6 +1,5 @@
 import 'package:admin_app/models/action_model.dart';
 import 'package:admin_app/models/genre.dart';
-import 'package:admin_app/models/user_model.dart';
 import 'package:flutter/material.dart';
 
 final List<ActionModel> userActions = [
@@ -16,6 +15,10 @@ final List<ActionModel> userActions = [
     icon: Icons.visibility,
     name: 'View',
   ),
+  ActionModel(
+    icon: Icons.edit,
+    name: "Edit",
+  )
   // Add additional user actions as needed
 ];
 

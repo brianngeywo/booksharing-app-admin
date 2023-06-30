@@ -1,160 +1,125 @@
-import 'package:admin_app/constants.dart';
-import 'package:admin_app/services/auth_service.dart';
+import 'package:admin_app/services/user_service.dart';
 import 'package:flutter/material.dart';
 
-class EditUserScreen extends StatefulWidget {
+import 'models/user_model.dart';
+
+class EditUserPage extends StatefulWidget {
+  final UserModel user;
+
+  EditUserPage({super.key, required this.user});
+
   @override
-  _EditUserScreenState createState() => _EditUserScreenState();
+  _EditUserPageState createState() => _EditUserPageState();
 }
 
-class _EditUserScreenState extends State<EditUserScreen> {
-  final _formKey = GlobalKey<FormState>();
-  String _name = "";
-  String _email = "";
-  String _password = "";
-  String _phoneNumber = "";
-
-  Future<void> _signUp() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-
-      try {
-        AuthService().signUpUser(
-          _name,
-          _email,
-          _password,
-          _phoneNumber,
-        );
-      } catch (e) {
-        print('Error uploading images: $e');
-        // Handle error
-      }
-    }
-  }
+class _EditUserPageState extends State<EditUserPage> {
+  late TextEditingController nameController;
+  late TextEditingController emailController;
+  late TextEditingController phoneNumberController;
+  late TextEditingController addressController;
+  late TextEditingController bioController;
 
   @override
   void initState() {
     super.initState();
+    nameController = TextEditingController(text: widget.user.name);
+    emailController = TextEditingController(text: widget.user.email);
+    phoneNumberController =
+        TextEditingController(text: widget.user.phoneNumber);
+    addressController = TextEditingController(text: widget.user.address);
+    bioController = TextEditingController(text: widget.user.bio);
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    phoneNumberController.dispose();
+    addressController.dispose();
+    bioController.dispose();
+    super.dispose();
+  }
+
+  void saveChanges() {
+    // Update user data with the changes
+    widget.user.name = nameController.text;
+    widget.user.email = emailController.text;
+    widget.user.phoneNumber = phoneNumberController.text;
+    widget.user.address = addressController.text;
+    widget.user.bio = bioController.text;
+    UserModel user = UserModel(
+      id: widget.user.id,
+      name: nameController.text,
+      email: emailController.text,
+      phoneNumber: phoneNumberController.text,
+      address: addressController.text,
+      bio: bioController.text,
+      password: widget.user.password,
+      profilePictureUrl: widget.user.profilePictureUrl,
+      coverImageUrl: widget.user.coverImageUrl,
+      approved: widget.user.approved,
+    );
+    // TODO: Save the updated user data to the database
+    _uploadUser(user);
+
+    // Show a success message or navigate to a different screen
+  }
+
+  _uploadUser(UserModel user) {
+    UserService().updateUserInFirestore(user.id, user.toMap());
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('User updated successfully'),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 100.0),
-                Center(
-                  child: Text(
-                    'Sign Up',
-                    style: TextStyle(
-                      fontSize: 40.0,
-                      fontWeight: FontWeight.bold,
-                      color: textColor,
-                      letterSpacing: 2.0,
-                      shadows: [
-                        Shadow(
-                          offset: Offset(2.0, 2.0),
-                          blurRadius: 3.0,
-                          color: Colors.grey.withOpacity(0.5),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20.0),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                  ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _name = value!.trim();
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Phone Number',
-                  ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your phone number';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _phoneNumber = value!.trim();
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your email';
-                    } else if (!value.contains('@')) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _email = value!.trim();
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                  ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your password';
-                    } else if (value.length < 6) {
-                      return 'Password must be at least 6 characters long';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _password = value!.trim();
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                const SizedBox(height: 32.0),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    onPressed: _signUp,
-                    style: ElevatedButton.styleFrom(
-                      primary:
-                          textColor, // Set the button background color to transparent
-                    ),
-                    child: const Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+      appBar: AppBar(
+        title: Text('Edit User'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(
+                labelText: 'Name',
+              ),
             ),
-          ),
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(
+                labelText: 'Email',
+              ),
+            ),
+            TextField(
+              controller: phoneNumberController,
+              decoration: InputDecoration(
+                labelText: 'Phone Number',
+              ),
+            ),
+            TextField(
+              controller: addressController,
+              decoration: InputDecoration(
+                labelText: 'Address',
+              ),
+            ),
+            TextField(
+              controller: bioController,
+              decoration: InputDecoration(
+                labelText: 'Bio',
+              ),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: saveChanges,
+              child: Text('Save Changes'),
+            ),
+          ],
         ),
       ),
     );

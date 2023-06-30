@@ -1,9 +1,8 @@
 import 'package:admin_app/app_bar.dart';
 import 'package:admin_app/books_page.dart';
+import 'package:admin_app/edit_user.dart';
 import 'package:admin_app/models/book.dart';
 import 'package:admin_app/models/user_model.dart';
-import 'package:admin_app/services/book_service.dart';
-import 'package:admin_app/services/user_service.dart';
 import 'package:admin_app/sidebar.dart';
 import 'package:admin_app/test_data.dart';
 import 'package:admin_app/users_page.dart';
@@ -19,28 +18,9 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
-  List<UserModel> users = [];
-  List<BookModel> books = [];
   String selectedModule = 'books';
   BookModel? selectedBook;
-
-  // create function to fetch users from fiebase using UserService().getAllUsers()
-  void fetchAllUsers() async {
-    users = await UserService().getAllUsers();
-  }
-
-  // create function to fetch books from fiebase using BookService().getAllBooks()
-  void fetchAllBooks() async {
-    books = await BookService().getBooks();
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    fetchAllUsers();
-    fetchAllBooks();
-    super.initState();
-  }
+  UserModel? selectedUser;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +44,6 @@ class _AdminPageState extends State<AdminPage> {
                 switch (selectedModule) {
                   case 'books':
                     return BooksPage(
-                      books: books,
                       actions: bookActions,
                       onBookSelected: (BookModel book) {
                         setState(() {
@@ -79,8 +58,17 @@ class _AdminPageState extends State<AdminPage> {
                     );
                   case 'users':
                     return UsersPage(
-                      users: users,
                       actions: userActions,
+                      onUserSelected: (UserModel user) {
+                        setState(() {
+                          selectedUser = user; // set the selected user
+                        });
+                      },
+                      onModuleSelected: (String module) {
+                        setState(() {
+                          selectedModule = module;
+                        });
+                      },
                     );
                   case 'addUser':
                     return AddUserScreen();
@@ -88,10 +76,21 @@ class _AdminPageState extends State<AdminPage> {
                     return const AddBookPage();
                   case 'editBook':
                     return EditBookPage(book: selectedBook!);
+                  case 'editUser':
+                    return EditUserPage(user: selectedUser!);
                   default:
                     return UsersPage(
-                      users: users,
                       actions: userActions,
+                      onUserSelected: (UserModel user) {
+                        setState(() {
+                          selectedUser = user; // set the selected user
+                        });
+                      },
+                      onModuleSelected: (String module) {
+                        setState(() {
+                          selectedModule = module;
+                        });
+                      },
                     ); // Placeholder for an unmatched case
                 }
               },

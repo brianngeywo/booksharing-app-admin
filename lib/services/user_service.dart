@@ -1,5 +1,3 @@
-import 'package:admin_app/models/book.dart';
-import 'package:admin_app/models/discussion_post_comment.dart';
 import 'package:admin_app/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,11 +6,12 @@ class UserService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
-  Future<void> createUser(String userId, Map<String, dynamic> userData) async {
+  Future<void> createUserInFirestore(
+      String userId, Map<String, dynamic> userData) async {
     await _firestore.collection('users').doc(userId).set(userData);
   }
 
-  Future<Map<String, dynamic>?> getUser(String userId) async {
+  Future<Map<String, dynamic>?> getUserFromFirestore(String userId) async {
     final DocumentSnapshot documentSnapshot =
         await _firestore.collection('users').doc(userId).get();
 
@@ -23,7 +22,7 @@ class UserService {
     }
   }
 
-  Future<List<UserModel>> getAllUsers() async {
+  Future<List<UserModel>> getAllUsersFromFirestore() async {
     final QuerySnapshot querySnapshot =
         await _firestore.collection('users').get();
 
@@ -37,58 +36,17 @@ class UserService {
     return users;
   }
 
-  Future<void> updateUser(
+  Future<void> updateUserInFirestore(
       String userId, Map<String, dynamic> updatedData) async {
     await _firestore.collection('users').doc(userId).update(updatedData);
   }
 
-  Future<void> deleteUser(String userId) async {
+  Future<void> deleteUserFromFirestore(String userId) async {
     await _firestore.collection('users').doc(userId).delete();
   }
 
-  // Borrow a book
-  Future<void> borrowBook(String bookId) async {
-    try {
-      final User? currentUser = _firebaseAuth.currentUser;
-      if (currentUser != null) {
-        final CollectionReference booksCollection =
-            _firestore.collection('books');
-        final DocumentReference bookDocRef = booksCollection.doc(bookId);
-
-        // Check if the book exists
-        final DocumentSnapshot bookSnapshot = await bookDocRef.get();
-        if (bookSnapshot.exists) {
-          // Update the borrower information
-          await bookDocRef.collection('borrowers').doc(currentUser.uid).set({
-            'borrowerId': currentUser.uid,
-            'borrowedAt': DateTime.now(),
-          });
-          print('Book borrowed successfully!');
-        } else {
-          print('Book not found.');
-        }
-      }
-    } catch (e) {
-      print(e.toString());
-    }
-  }
-
-  Future<void> saveComment(
-      DiscussionPostComment comment, BookModel book) async {
-    final commentData = {
-      'comment': comment,
-      'timestamp': DateTime.now(),
-    };
-
-    await FirebaseFirestore.instance
-        .collection('books')
-        .doc(book.id)
-        .collection('comments')
-        .add(commentData);
-  }
-
   // get current user
-  UserModel getCurrentUser() {
+  UserModel getCurrentUserFromFirestore() {
     UserModel user = UserModel(
       id: _firebaseAuth.currentUser!.uid,
       email: _firebaseAuth.currentUser!.email!,
@@ -109,5 +67,10 @@ class UserService {
       user = UserModel.fromMap(value.data() as Map<String, dynamic>);
     });
     return user;
+  }
+
+  //update upproval status using book id and approved boolean field
+  Future<void> updateApprovalStatus(String id, bool approved) async {
+    await _firestore.collection('users').doc(id).update({'approved': approved});
   }
 }

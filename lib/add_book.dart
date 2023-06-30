@@ -41,7 +41,7 @@ class _AddBookPageState extends State<AddBookPage> {
         title: _title,
         author: _author,
         genre: _genre,
-        postedBy: UserService().getCurrentUser(),
+        postedBy: UserService().getCurrentUserFromFirestore(),
         description: _abstract,
         coverUrl: "",
         allowedUsers: [],

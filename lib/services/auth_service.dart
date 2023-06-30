@@ -1,4 +1,5 @@
 import 'package:admin_app/models/user_model.dart';
+import 'package:admin_app/services/user_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -31,51 +32,8 @@ class AuthService {
         approved: false,
       );
 
-      // Create a new user document in Firestore
-      await _firestore.collection('users').doc(userId).set(
-            user.toMap(),
-          );
-    } catch (e) {
-      // Handle sign-up error
-      print('Sign-up error: $e');
-    }
-  }
-
-  //update user
-  Future<void> updateUser(
-    String name,
-    String email,
-    String password,
-    String coverImageUrl,
-    String profileImageUrl,
-    String phoneNumber,
-    String address,
-    String bio,
-    bool approved,
-  ) async {
-    try {
-      // Create a new user in Firebase Authentication
-      var userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
-      String userId = userCredential.user!.uid;
-
-      UserModel user = UserModel(
-        id: userId,
-        name: name,
-        email: email,
-        phoneNumber: phoneNumber,
-        address: address,
-        bio: bio,
-        profilePictureUrl: profileImageUrl,
-        coverImageUrl: coverImageUrl,
-        password: password,
-        approved: approved,
-      );
-
       // Update user document in Firestore
-      await _firestore.collection('users').doc(userId).update(
-            user.toMap(),
-          );
+      UserService().createUserInFirestore(userId, user.toMap());
     } catch (e) {
       // Handle sign-up error
       print('Sign-up error: $e');
