@@ -48,8 +48,8 @@ class UserService {
   // get current user
   UserModel getCurrentUserFromFirestore() {
     UserModel user = UserModel(
-      id: _firebaseAuth.currentUser!.uid,
-      email: _firebaseAuth.currentUser!.email!,
+      id: "QSryPWduqWaqYISXbVDyhIHDaFC2",
+      email: "levinyambati@gmail.com",
       name: "",
       profilePictureUrl: "",
       address: '',
@@ -61,7 +61,7 @@ class UserService {
     );
     FirebaseFirestore.instance
         .collection('users')
-        .doc(_firebaseAuth.currentUser!.uid)
+        .doc("QSryPWduqWaqYISXbVDyhIHDaFC2")
         .get()
         .then((value) {
       user = UserModel.fromMap(value.data() as Map<String, dynamic>);

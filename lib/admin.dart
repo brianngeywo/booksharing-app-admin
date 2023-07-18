@@ -73,7 +73,7 @@ class _AdminPageState extends State<AdminPage> {
                   case 'addUser':
                     return AddUserScreen();
                   case 'addBook':
-                    return const AddBookPage();
+                    return AddBookPage();
                   case 'editBook':
                     return EditBookPage(book: selectedBook!);
                   case 'editUser':

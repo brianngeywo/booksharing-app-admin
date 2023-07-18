@@ -1,163 +1,135 @@
-import 'package:admin_app/constants.dart';
-import 'package:admin_app/models/book.dart';
-import 'package:admin_app/models/genre.dart';
 import 'package:admin_app/services/book_service.dart';
 import 'package:admin_app/services/user_service.dart';
 import 'package:admin_app/test_data.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
-class AddBookPage extends StatefulWidget {
-  const AddBookPage({Key? key}) : super(key: key);
+import 'models/book.dart';
+import 'models/genre.dart';
 
+class AddBookPage extends StatefulWidget {
   @override
   _AddBookPageState createState() => _AddBookPageState();
 }
 
 class _AddBookPageState extends State<AddBookPage> {
-  final _formKey = GlobalKey<FormState>();
+  TextEditingController _titleController = TextEditingController();
+  TextEditingController _authorController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _coverUrlController = TextEditingController();
+  TextEditingController _fileUrlController = TextEditingController();
+  Genre? _selectedGenre;
+  List<DropdownMenuItem<Genre>> _genreDropdownItems = [];
 
-  late String _title;
-  late String _author;
-  late Genre _genre;
-  late String _abstract;
-
+  // Other necessary variables and methods can be added here
   @override
   void initState() {
     super.initState();
-    _genre = genres[0];
-    _title = "";
-    _author = "";
-    _abstract = "";
-  }
-
-  Future<void> _uploadBook() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-
-      // Create a new Book object
-      BookModel book = BookModel(
-        id: Uuid().v4(),
-        title: _title,
-        author: _author,
-        genre: _genre,
-        postedBy: UserService().getCurrentUserFromFirestore(),
-        description: _abstract,
-        coverUrl: "",
-        allowedUsers: [],
-        fileUrl: "",
-        approved: false,
+    _genreDropdownItems = genres.map((Genre genre) {
+      return DropdownMenuItem<Genre>(
+        value: genre,
+        child: Text(genre.name),
       );
-
-      // Update the book in Firestore
-      BookService().addBook(book);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Book updated successfully!"),
-          duration: Duration(seconds: 3),
-          backgroundColor: Colors.green,
-        ),
-      );
-    }
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Upload a Book',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 24.0,
-          ),
-        ),
+        automaticallyImplyLeading: false,
+        title: const Text('Create Book'),
       ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Title'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a title';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _title = value!;
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Author'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter an author';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _author = value!;
-                  },
-                ),
-                DropdownButtonFormField<Genre>(
-                  decoration: const InputDecoration(labelText: 'Genre'),
-                  value: _genre,
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Please select a genre';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      _genre = value!;
-                    });
-                  },
-                  items: genres.map((genre) {
-                    return DropdownMenuItem<Genre>(
-                      value: genre,
-                      child: Text(genre.name),
-                    );
-                  }).toList(),
-                ),
-                TextFormField(
-                  minLines: 15,
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                    labelText: 'Abstract',
-                    alignLabelWithHint: true,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a book abstract';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _abstract = value!;
-                  },
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(textColor),
-                  ),
-                  onPressed: _uploadBook,
-                  child: const Text(
-                    'Upload Book',
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                ),
-              ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          // crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(labelText: 'Title'),
             ),
-          ),
+            const SizedBox(height: 16.0),
+            TextField(
+              controller: _authorController,
+              decoration: const InputDecoration(labelText: 'Author'),
+            ),
+            const SizedBox(height: 16.0),
+            TextField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(labelText: 'Description'),
+            ),
+            const SizedBox(height: 16.0),
+            TextField(
+              controller: _coverUrlController,
+              decoration: const InputDecoration(labelText: 'Cover URL'),
+            ),
+            const SizedBox(height: 16.0),
+            TextField(
+              controller: _fileUrlController,
+              decoration: const InputDecoration(labelText: 'File URL'),
+            ),
+            const SizedBox(height: 16.0),
+            DropdownButtonFormField<Genre>(
+              value: _selectedGenre,
+              items: _genreDropdownItems,
+              onChanged: (Genre? selectedGenre) {
+                setState(() {
+                  _selectedGenre = selectedGenre;
+                });
+              },
+              decoration: InputDecoration(labelText: 'Genre'),
+            ),
+            const SizedBox(height: 24.0),
+            ElevatedButton(
+              onPressed: () {
+                Genre? selectedGenre = _selectedGenre;
+                String title = _titleController.text;
+                String author = _authorController.text;
+                String description = _descriptionController.text;
+                String coverUrl = _coverUrlController.text ?? "";
+                String fileUrl = _fileUrlController.text ?? "";
+
+                if (selectedGenre != null) {
+                  BookModel newBook = BookModel(
+                    id: const Uuid()
+                        .v4(), // Provide a unique ID for the new book
+                    title: title,
+                    author: author,
+                    genre: selectedGenre!, // Replace with your genre object
+                    description: description,
+                    postedBy: UserService()
+                        .getCurrentUserFromFirestore(), // Replace with the user who posted the book
+                    coverUrl: coverUrl,
+                    allowedUsers: [],
+                    fileUrl: fileUrl,
+                    approved: false, // Change as needed
+                  );
+
+                  // Perform any necessary operations with the new book object
+                  BookService().addBook(newBook);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Book updated successfully!"),
+                      duration: Duration(seconds: 3),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else {
+                  // Handle the case when no genre is selected
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Please select a genre!"),
+                      duration: Duration(seconds: 3),
+                      backgroundColor: Colors.redAccent,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Create'),
+            ),
+          ],
         ),
       ),
     );

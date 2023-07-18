@@ -1,5 +1,8 @@
+import 'package:admin_app/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import 'login_screen.dart';
 
 class Sidebar extends StatefulWidget {
   final Function(String) onModuleSelected;
@@ -60,6 +63,29 @@ class _SidebarState extends State<Sidebar> {
                   widget.onModuleSelected('addBook');
                 });
               },
+            ),
+            MaterialButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5)),
+              color: Colors.red,
+              onPressed: () async {
+                await AuthService().logoutUser();
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()));
+              },
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  'Sign out',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
